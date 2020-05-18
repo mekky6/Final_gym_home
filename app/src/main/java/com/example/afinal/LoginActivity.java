@@ -10,6 +10,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.afinal.Database.DatabaseHelper;
 import com.example.afinal.Profiles.MainProfileActivity;
 
 public class LoginActivity extends AppCompatActivity {
@@ -20,12 +21,12 @@ public class LoginActivity extends AppCompatActivity {
     //Declaration Button
     Button buttonLogin;
     TextView signUpText;
-
+     DatabaseHelper mDb;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate ( savedInstanceState );
         setContentView ( R.layout.activity_login );
-
+        mDb=new DatabaseHelper( LoginActivity.this );
 
         loginEmail = (EditText) findViewById(R.id.loginEmail);
         loginPassword = (EditText) findViewById(R.id.loginPassword);
@@ -46,13 +47,20 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(validate ()){
-                    Toast toast=Toast. makeText(LoginActivity.this,"Successfully LogIn",Toast. LENGTH_SHORT);
-                    toast.show ();
-                    //User Logged in Successfully Launch You home screen activity
-                    Intent intent=new Intent(LoginActivity.this, MainProfileActivity.class);
-                    startActivity(intent);
-                    //finish();
-                }
+                    //DataBase part of the registration
+                    String User = loginEmail.getText().toString().trim();
+                    String password = loginPassword.getText().toString().trim();
+                    Boolean res = mDb.CheckUser( User, password );
+                    if (res == true){
+                        //User Logged in Successfully Launch You home screen activity
+                        Intent login=new Intent(LoginActivity.this, MainProfileActivity.class);
+                        login.putExtra("username",User);
+                        startActivity(login);
+                    }//end if
+                    else {
+                        Toast.makeText( LoginActivity.this, "Email or Password are not valid !", Toast.LENGTH_LONG ).show();
+                    }//end else
+                }//end if
                /* else {
                     Toast toast=Toast. makeText(LoginActivity.this,"Email or Password are not valid !",Toast. LENGTH_SHORT);
                     toast.show ();

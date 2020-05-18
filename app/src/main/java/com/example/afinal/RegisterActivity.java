@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.afinal.CreateProfile.CreateGenderActivity;
+import com.example.afinal.Database.DatabaseHelper;
 
 public class RegisterActivity extends AppCompatActivity {
     EditText register_username, register_email, register_password, register_confirmpassword;
@@ -23,13 +24,12 @@ public class RegisterActivity extends AppCompatActivity {
     //Declaration Button
     Button register_buttoncreateaccount;
     TextView register_login;
-
-
+    DatabaseHelper mDb;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-
+        mDb=new DatabaseHelper( RegisterActivity.this );
         //this method is used to connect XML views to its Objects
         register_confirmpassword = findViewById(R.id.register_confirmPassword);
         register_username = findViewById(R.id.register_userName);
@@ -63,22 +63,35 @@ public class RegisterActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (Validate()) {
-                    Toast toast = Toast.makeText(RegisterActivity.this, "Successfully SignUp", Toast.LENGTH_SHORT);
-                    toast.show();
-                    //User Logged in Successfully Launch You home screen activity
-                    Intent intent = new Intent(RegisterActivity.this, CreateGenderActivity.class);
-                    startActivity(intent);
-                    //finish();
-                } else if (!Validate()) {
-                    Toast toast = Toast.makeText(RegisterActivity.this, "UnSuccessfully SignUp", Toast.LENGTH_SHORT);
-                    toast.show();
-                }
+                    //DataBase part of the registration
+                    String username=register_username.getText().toString().trim();
+                    String email=register_email.getText().toString().trim();
+                    String password=register_password.getText().toString().trim();
+                    String configpassword=register_confirmpassword.getText().toString().trim();
+                    if(password.equals( configpassword )){
+                        long val=mDb.adduser(username,email,password);
+                        if(val>0){
+                            Toast.makeText( RegisterActivity.this,"your have registered",Toast.LENGTH_LONG).show();
+                            //User Logged in Successfully Launch You home screen activity
+                            Intent moveTolog = new Intent(RegisterActivity.this, CreateGenderActivity.class);
+                            moveTolog.putExtra("username",register_username.getText().toString());
+                            startActivity(moveTolog);
+                            Toast toast = Toast.makeText(RegisterActivity.this, "Successfully SignUp", Toast.LENGTH_SHORT);toast.show();
+                            //finish();
+                        }//end if
+                        else {
+                            Toast.makeText( RegisterActivity.this,"error",Toast.LENGTH_LONG).show();
+                        }//end else
+                    }//end if
+                    else
+                    {
+                        Toast.makeText( RegisterActivity.this,"password no validation",Toast.LENGTH_LONG).show();
+                    }//end else
+                }//end if
             }
         }
         );
-    }
-
-
+    }//end onCreate()
     private boolean Validate() {
         boolean valid = false;
 
@@ -139,5 +152,5 @@ public class RegisterActivity extends AppCompatActivity {
             }
         }
         return valid;
-    }
-}
+    }//end Validate()
+}//end class
